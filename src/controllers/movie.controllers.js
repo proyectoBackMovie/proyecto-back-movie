@@ -1,9 +1,11 @@
 const catchError = require('../utils/catchError');
 const Movie = require('../models/Movie');
 const Genre = require('../models/Genre');
+const Actor = require('../models/Actor');
+const Director = require('../models/Director');
 
 const getAll = catchError(async(req, res) => {
-    const results = await Movie.findAll({include:[Genre]});
+    const results = await Movie.findAll({include:[Genre,Actor,Director]});
     return res.json(results);
 });
 
@@ -14,7 +16,7 @@ const create = catchError(async(req, res) => {
 
 const getOne = catchError(async(req, res) => {
     const { id } = req.params;
-    const result = await Movie.findByPk(id, {include:[Genre]});
+    const result = await Movie.findByPk(id, {include:[Genre,Actor,Director]});
     if(!result) return res.sendStatus(404);
     return res.json(result);
 });
@@ -35,7 +37,7 @@ const update = catchError(async(req, res) => {
     return res.json(result[1][0]);
 });
 
-// /movie/:id/genres
+// /movies/:id/genres
 
 const setGenres = catchError(async(req, res) => {
     const { id } = req.params;
@@ -43,7 +45,25 @@ const setGenres = catchError(async(req, res) => {
     await movie.setGenres(req.body);
     const genres = await movie.getGenres();
     return res.json(genres);
-})
+});
+
+//  /movies/:id/actors
+const setActors = catchError(async(req, res) => {
+    const { id } = req.params;
+    const movie = await Movie.findByPk(id);
+    await movie.setActors(req.body);
+    const actors = await movie.getActors();
+    return res.json(actors);
+});
+
+    // /movies/:id/directors
+    const setDirectors = catchError(async(req, res) => {
+        const { id } = req.params;
+        const movie = await Movie.findByPk(id);
+        await movie.setDirectors(req.body);
+        const directors = await movie.getDirectors();
+        return res.json(directors)
+    })
 
 module.exports = {
     getAll,
@@ -51,5 +71,7 @@ module.exports = {
     getOne,
     remove,
     update,
-    setGenres
+    setGenres,
+    setActors,
+    setDirectors
 }
